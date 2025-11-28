@@ -16,9 +16,22 @@ const Explanation = lazy(() => import("../pages/Exaplanation"));
 const Summary = lazy(() => import("../pages/Summary"));
 const Quiz = lazy(() => import("../pages/Quiz"));
 const FlashCard = lazy(() => import("../pages/FlashCards"));
+import type { ReactNode } from "react";
+
 
 import AppShell from "../commponents/AppShell"; // your sidebar + navbar layout
 
+import { Navigate } from "react-router-dom";
+
+const ProtectedRoute = ({ children }: { children: ReactNode }) => {
+  const token = localStorage.getItem("accessToken");
+  if (!token) {
+    return <Navigate to="/auth/login" replace />;
+  }
+  return children;
+};
+
+ 
 function Router() {
   return (
     <BrowserRouter>
@@ -34,8 +47,14 @@ function Router() {
           <Route path="auth/login" element={<Login />} />
           <Route path="auth/signup" element={<SignUp />} />
 
-          <Route path="app" element={<AppShell />}>
-
+          <Route
+            path="app"
+            element={
+              <ProtectedRoute>
+                <AppShell />
+              </ProtectedRoute>
+            }
+          >
             <Route path="dashboard" element={<Dashboard />} />
 
             <Route path="notes">
@@ -58,7 +77,6 @@ function Router() {
 
             <Route path="analytics" element={<Analytics />} />
             <Route path="profile" element={<Profile />} />
-
           </Route>
         </Routes>
       </Suspense>
